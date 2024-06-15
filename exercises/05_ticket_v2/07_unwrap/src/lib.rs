@@ -1,8 +1,37 @@
 // TODO: `easy_ticket` should panic when the title is invalid.
 //   When the description is invalid, instead, it should use a default description:
 //   "Description not provided".
+
+fn validate_title(title: &str) -> Result<&str, &str> {
+    if title.is_empty()  {
+        return Err("Title cannot be empty");
+    }
+    if title.len() > 50 {
+        return Err("Title cannot be longer than 50 bytes");
+    }
+
+    Ok(title)
+}
+
+fn validate_description(description: &str) -> Result<&str, &str> {
+    if description.is_empty() || description.len() > 500 {
+        Err("Invalid description")
+    } else {
+        Ok(description)
+    }
+}
 fn easy_ticket(title: String, description: String, status: Status) -> Ticket {
-    todo!()
+    let t = String::from(validate_title(&title).unwrap());
+    let d = match validate_description(&description) {
+        Ok(d) => String::from(d),
+        Err(_) => String::from("Description not provided")
+    };
+
+    Ticket {
+        title: t,
+        description: d,
+        status
+    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
