@@ -8,6 +8,36 @@ enum Status {
     Done,
 }
 
+// @mdouglasbrett - look at the solution to this one! Had I tackled the &str
+// case first, it would have clicked that I could have just used that in 
+// TryFrom<String> (ie value.as_str.try_into())
+// Also, their solution used a custom error type.
+// Am going to leave this here to own my mistakes lol
+impl TryFrom<String> for Status {
+    type Error = String;
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        let v = value.to_lowercase();
+        match &v[0..] {
+            "todo" => Ok(Self::ToDo),
+            "inprogress" => Ok(Self::InProgress),
+            "done" => Ok(Self::Done),
+            _ => Err("Something went wrong!".to_string()),
+        }
+    }
+}
+impl TryFrom<&str> for Status {
+    type Error = String;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        let v = value.to_owned().to_lowercase();
+        match &v[0..] {
+            "todo" => Ok(Self::ToDo),
+            "inprogress" => Ok(Self::InProgress),
+            "done" => Ok(Self::Done),
+            _ => Err("Something went wrong!".to_string()),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
