@@ -49,6 +49,9 @@ impl Ticket {
             return Err(TicketNewError::DescriptionTooLong);
         }
 
+        // @mdouglasbrett - yeah I haven't fully understood that I could have 
+        // used ? here. Combined with the 'from' attribute it would have converted
+        // the underlying error
         let s = match status.try_into() {
             Err(e) => return Err(TicketNewError::InvalidStatus(e)),
             Ok(stat) => stat
