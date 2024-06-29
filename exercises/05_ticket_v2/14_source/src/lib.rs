@@ -23,6 +23,8 @@ pub enum TicketNewError {
     DescriptionCannotBeEmpty,
     #[error("Description cannot be longer than 500 bytes")]
     DescriptionTooLong,
+    #[error("{0}")]
+    InvalidStatus(#[from]status::ParseStatusError)
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -47,12 +49,15 @@ impl Ticket {
             return Err(TicketNewError::DescriptionTooLong);
         }
 
-        // TODO: Parse the status string into a `Status` enum.
+        let s = match status.try_into() {
+            Err(e) => return Err(TicketNewError::InvalidStatus(e)),
+            Ok(stat) => stat
+        };
 
         Ok(Ticket {
             title,
             description,
-            status,
+            status: s,
         })
     }
 }
