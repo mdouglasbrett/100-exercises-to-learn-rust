@@ -2,7 +2,7 @@
 //   enforcing that the description is not empty and is not longer than 500 bytes.
 //   Implement the traits required to make the tests pass too.
 //
-use std::convert::{From, TryFrom};
+use std::convert::TryFrom;
 use thiserror;
 
 #[derive(Debug, thiserror::Error)]
@@ -16,7 +16,7 @@ pub enum TicketDescriptionError {
 #[derive(Debug, PartialEq, Clone)]
 pub struct TicketDescription(String);
 
-fn check_description(desc: &str) -> Result<(String), TicketDescriptionError> {
+fn check_description(desc: &str) -> Result<String, TicketDescriptionError> {
     if desc.is_empty() {
         return Err(TicketDescriptionError::Empty);
     }
