@@ -36,6 +36,17 @@ impl TicketStore {
     }
 }
 
+impl IntoIterator for TicketStore {
+    type Item = Ticket;
+    // @mdouglasbrett - this threw me, my editor helpfully gave me a snippet
+    // that used Iterator<Item = Self::Item> which wouldn't compile due to 
+    // not being able to work out the size of the type
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.tickets.into_iter()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
