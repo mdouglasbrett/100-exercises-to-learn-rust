@@ -20,6 +20,8 @@ pub fn fibonacci(n: u32) -> u32 {
     
     // @mdouglasbrett - You can only index with a usize, will check the solution
     // later to see if they did anything like this...
+    // Ok, so they did do n = n as usize which I originally did do before I thought
+    // I could coerce it on the left side of the expression
     let n_as_u: usize = n.try_into().unwrap();
 
     let mut table = vec![0, 1];
