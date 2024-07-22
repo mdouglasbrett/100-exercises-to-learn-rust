@@ -36,6 +36,20 @@ impl TicketStore {
     }
 }
 
+impl <'a> IntoIterator for &'a TicketStore {
+    type Item = &'a Ticket;
+    // @mdouglasbrett - this is sort of tricky. Looks like a Ticket is returned
+    // from Iter, but really it's a reference with lifetime 'a (which matches
+    // type Item). This is why I think I was banging my head against a wall when
+    // I was trying to do:
+    // type IntoIter = std::slice::Iter<'a, Self::Item> and getting &&Ticket out
+    type IntoIter = std::slice::Iter<'a, Ticket>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.tickets.iter()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
