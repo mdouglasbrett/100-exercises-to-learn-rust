@@ -2,6 +2,15 @@
 //  modifying the input in place.
 //  Does it need to take a `&mut String`? Does a `&mut [str]` work? Why or why not?
 
+// @mdouglasbrett - this can't take a &mut String as one of the tests explicitly
+// passes a &mut str. I tried using a generic with a trait bound (Into<String>)
+// but (sort of obviously String doesn't implement it). Also, we want to mutate
+// this in-place, right? So returning a String is also unwanted.
+// I originally tried to do this by iterating over the chars but that was unnecessary
+pub fn lowercase(s: &mut str) {
+    s.make_ascii_lowercase()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
