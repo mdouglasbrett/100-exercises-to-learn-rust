@@ -6,7 +6,14 @@
 use std::thread;
 
 pub fn sum(v: Vec<i32>) -> i32 {
-    todo!()
+    // @mdouglasbrett - turns out I didn't need to be super defensive around
+    // what would happen if I called split_at on empty/single item vecs/slices
+    let v = v.leak();
+    let (v1, v2) = v.split_at(v.len() / 2);
+    let sum1: i32 = v1.iter().sum();
+    let thread_handle = thread::spawn(|| v2.iter().sum());
+    let sum2: i32 = thread_handle.join().unwrap();
+    sum1 + sum2
 }
 
 #[cfg(test)]
