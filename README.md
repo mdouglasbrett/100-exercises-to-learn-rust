@@ -1,4 +1,6 @@
-# Learn Rust, one exercise at a time
+# Learn Rust, one exercise at a time - ** MY SOLUTIONS **
+
+## Also, boo on GH for not giving me any contribution points for this!! 👎
 
 You've heard about Rust, but you never had the chance to try it out?\
 This course is for you!
