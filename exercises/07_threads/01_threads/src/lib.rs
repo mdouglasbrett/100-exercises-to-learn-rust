@@ -15,7 +15,26 @@
 use std::thread;
 
 pub fn sum(v: Vec<i32>) -> i32 {
-    todo!()
+    if v.is_empty() {
+        return 0;
+    }
+    if v.len() == 1 {
+        return v[0];
+    }
+
+    // @mdouglasbrett - the result of this is two slices, not vecs
+    // so we have to create vecs from them as pointed out in the hint.
+    // The bigger picture in all this is that you have to do a lot of std
+    // reading to get to solutions here, very tough to intuit the correct answer
+    // like I might in JS for example
+    let (v1, v2) = v.split_at(v.len() / 2);
+    let vec1 = v1.to_vec();
+    let vec2 = v2.to_vec();
+    let sum1: i32 = vec1.iter().sum();
+    // @mdouglasbrett - you have to explicitly move the vec in
+    let thread_handle = thread::spawn(move || vec2.iter().sum());
+    let sum2: i32 = thread_handle.join().unwrap();
+    sum1 + sum2
 }
 
 #[cfg(test)]
