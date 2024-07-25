@@ -4,20 +4,26 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
+type Counter = Rc<RefCell<usize>>;
+
 pub struct DropTracker<T> {
     value: T,
-    counter: todo!(),
+    counter: Counter,
 }
 
 impl<T> DropTracker<T> {
-    pub fn new(value: T, counter: todo!()) -> Self {
+    pub fn new(value: T, counter: Counter ) -> Self {
         Self { value, counter }
     }
 }
 
 impl<T> Drop for DropTracker<T> {
     fn drop(&mut self) {
-        todo!()
+        // @mdouglasbrett - dereferencing the Rc to its contents (the RefCell)
+        // which gives us access to the RefCell's methods.
+        // This originally didn't work because my editor pulled in a BorrowMut
+        // type via code completion (again). Watch out for this type of thing!!
+        *self.counter.borrow_mut() += 1;
     }
 }
 
