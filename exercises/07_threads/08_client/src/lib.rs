@@ -7,14 +7,16 @@ pub mod store;
 
 #[derive(Clone)]
 // TODO: flesh out the client implementation.
-pub struct TicketStoreClient(Sender<Command>);
+pub struct TicketStoreClient{
+    sender: Sender<Command>
+}
 
 impl TicketStoreClient {
     // Feel free to panic on all errors, for simplicity.
     // @mdouglasbrett - Is there a nice way to extract some of this repetition?
     pub fn insert(&self, draft: TicketDraft) -> TicketId {
         let (resp_sender, resp_receiver) = std::sync::mpsc::channel();
-        self.0
+        self.sender
             .send(Command::Insert {
                 draft,
                 response_channel: resp_sender,
@@ -25,7 +27,7 @@ impl TicketStoreClient {
 
     pub fn get(&self, id: TicketId) -> Option<Ticket> {
         let (resp_sender, resp_receiver) = std::sync::mpsc::channel();
-        self.0
+        self.sender
             .send(Command::Get {
                 id,
                 response_channel: resp_sender,
@@ -38,7 +40,7 @@ impl TicketStoreClient {
 pub fn launch() -> TicketStoreClient {
     let (sender, receiver) = std::sync::mpsc::channel();
     std::thread::spawn(move || server(receiver));
-    TicketStoreClient(sender)
+    TicketStoreClient { sender }
 }
 
 // No longer public! This becomes an internal detail of the library now.
@@ -53,7 +55,7 @@ enum Command {
     },
 }
 
-pub fn server(receiver: Receiver<Command>) {
+fn server(receiver: Receiver<Command>) {
     let mut store = TicketStore::new();
     loop {
         match receiver.recv() {
