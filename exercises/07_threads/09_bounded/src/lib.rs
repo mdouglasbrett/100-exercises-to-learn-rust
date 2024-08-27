@@ -13,19 +13,19 @@ pub struct TicketStoreClient {
 }
 
 impl TicketStoreClient {
-    pub fn insert(&self, draft: TicketDraft) -> Result<TicketId, TrySendError<Command>> {
+    pub fn insert(&self, draft: TicketDraft) -> Result<TicketId, _> {
         let (resp_sender, resp_receiver) = std::sync::mpsc::sync_channel(self.capacity);
         let msg = Command::Insert {
             draft,
             response_channel: resp_sender,
         };
-        // TODO: this!!! arrgh
-        // there is a loop that's missing here...
-        let err = self.sender.try_send(msg)?;
+        while let Err(TrySendError::Full(val)) = self.sender.try_send(msg) {
+            self.sender.try_send(val);
+        }
         if let Ok(id) = resp_receiver.recv() {
-            return Ok(id);
+            Ok(id)
         } else {
-            return Err(err);
+            Err(err)
         }
 
     }
