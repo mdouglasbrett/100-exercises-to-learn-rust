@@ -20,6 +20,7 @@ impl TicketStoreClient {
             response_channel: resp_sender,
         };
         // TODO: this!!! arrgh
+        // there is a loop that's missing here...
         let err = self.sender.try_send(msg)?;
         if let Ok(id) = resp_receiver.recv() {
             return Ok(id);
