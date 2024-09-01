@@ -12,6 +12,8 @@ pub struct TicketStoreClient {
     capacity: usize,
 }
 
+// @mdouglasbrett - There is another error that we are not returning (the error from the receiver)
+// The tests pass, perhaps we will build on this in a later exercise.
 impl TicketStoreClient {
     pub fn insert(&self, draft: TicketDraft) -> Result<TicketId, TrySendError<Command>> {
         let (resp_sender, resp_receiver) = std::sync::mpsc::sync_channel(self.capacity);
