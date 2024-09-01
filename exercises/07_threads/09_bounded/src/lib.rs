@@ -13,24 +13,37 @@ pub struct TicketStoreClient {
 }
 
 impl TicketStoreClient {
-    pub fn insert(&self, draft: TicketDraft) -> Result<TicketId, _> {
+    pub fn insert(&self, draft: TicketDraft) -> Result<TicketId, TrySendError<Command>> {
         let (resp_sender, resp_receiver) = std::sync::mpsc::sync_channel(self.capacity);
         let msg = Command::Insert {
             draft,
             response_channel: resp_sender,
         };
-        while let Err(TrySendError::Full(val)) = self.sender.try_send(msg) {
-            self.sender.try_send(val);
+        let attempt = self.sender.try_send(msg);
+        match attempt {
+            Ok(_) => {
+                let ticket_id = resp_receiver.recv().unwrap();
+                Ok(ticket_id)
+            }
+            Err(e) => Err(e),
         }
-        if let Ok(id) = resp_receiver.recv() {
-            Ok(id)
-        } else {
-            Err(err)
-        }
-
     }
 
-    pub fn get(&self, id: TicketId) -> Result<Option<Ticket>, TrySendError<Command>> {}
+    pub fn get(&self, id: TicketId) -> Result<Option<Ticket>, TrySendError<Command>> {
+        let (resp_sender, resp_receiver) = std::sync::mpsc::sync_channel(self.capacity);
+        let msg = Command::Get {
+            id,
+            response_channel: resp_sender,
+        };
+        let attempt = self.sender.try_send(msg);
+        match attempt {
+            Ok(_) => {
+                let ticket = resp_receiver.recv().unwrap();
+                Ok(ticket)
+            }
+            Err(e) => Err(e),
+        }
+    }
 }
 
 pub fn launch(capacity: usize) -> TicketStoreClient {
@@ -39,7 +52,7 @@ pub fn launch(capacity: usize) -> TicketStoreClient {
     TicketStoreClient { sender, capacity }
 }
 
-enum Command {
+pub enum Command {
     Insert {
         draft: TicketDraft,
         response_channel: SyncSender<TicketId>,
@@ -52,6 +65,9 @@ enum Command {
 
 pub fn server(receiver: Receiver<Command>) {
     let mut store = TicketStore::new();
+    // @mdouglasbrett - Would we bother with the try_send in the server?
+    // We are going to swallow the error. There may be something I am missing here.
+    // TODO: There is a Jon Gjengset video on this topic that I should watch.
     loop {
         match receiver.recv() {
             Ok(Command::Insert {
@@ -66,7 +82,7 @@ pub fn server(receiver: Receiver<Command>) {
                 response_channel,
             }) => {
                 let ticket = store.get(id);
-                todo!()
+                let _ = response_channel.try_send(ticket.cloned());
             }
             Err(_) => {
                 // There are no more senders, so we can safely break
