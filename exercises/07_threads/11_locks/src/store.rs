@@ -35,6 +35,9 @@ impl TicketStore {
     // The `get` method should return a handle to the ticket
     // which allows the caller to either read or modify the ticket.
     pub fn get(&self, id: TicketId) -> Option<Arc<Mutex<Ticket>>> {
+        // @mdouglasbrett - I don't have to do the if let here, I could
+        // have done self.tickets.get(&id).cloned() on the returned option
+        // TODO: tho the tests pass, not sure this doesn't change behaviour
         if let Some(ticket) = self.tickets.get(&id) {
             Some(ticket.clone())
         } else {
