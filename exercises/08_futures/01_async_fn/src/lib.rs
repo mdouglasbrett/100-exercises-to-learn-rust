@@ -1,3 +1,5 @@
+use anyhow::anyhow;
+use tokio::io::copy;
 use tokio::net::TcpListener;
 
 // TODO: write an echo server that accepts incoming TCP connections and
@@ -10,8 +12,19 @@ use tokio::net::TcpListener;
 // - `tokio::net::TcpListener::accept` to process the next incoming connection
 // - `tokio::net::TcpStream::split` to obtain a reader and a writer from the socket
 // - `tokio::io::copy` to copy data from the reader to the writer
+
+// @mdouglasbrett - I really didn't pay attention to the instruction on this one,
+// and kept trying to return Ok(()) - but maybe that in itself is a fundamental
+// misunderstanding of async functions in Rust?
 pub async fn echo(listener: TcpListener) -> Result<(), anyhow::Error> {
-    todo!()
+    loop {
+        if let Ok((mut tcp_stream, _)) = listener.accept().await {
+            let (mut read_half, mut write_half) = tcp_stream.split();
+            copy(&mut read_half, &mut write_half).await?;
+        } else {
+            return Err(anyhow!("Something went wrong!"));
+        }
+    }
 }
 
 #[cfg(test)]
