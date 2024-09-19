@@ -8,3 +8,6 @@
 //
 // Use Rust's package registry, crates.io, to find the dependencies you need
 // (if any) to build this system.
+
+// @mdouglasbrett - TODO: is it worth taking a detour here to do Tokio's 'mini-redis'
+// project and then swing back to this?
