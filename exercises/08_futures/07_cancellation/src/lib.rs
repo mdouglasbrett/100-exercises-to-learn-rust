@@ -37,6 +37,8 @@ mod tests {
 
             // Send first half
             writer.write_all(beginning.as_bytes()).await.unwrap();
+            // @mdouglasbrett - By the time this sleep is done, we will have 
+            // timed out inside 'run'
             tokio::time::sleep(timeout * 2).await;
             writer.write_all(end.as_bytes()).await.unwrap();
 
@@ -46,6 +48,6 @@ mod tests {
 
         let buffered = handle.await.unwrap();
         let buffered = std::str::from_utf8(&buffered).unwrap();
-        assert_eq!(buffered, "");
+        assert_eq!(buffered, "hefrthta");
     }
 }
